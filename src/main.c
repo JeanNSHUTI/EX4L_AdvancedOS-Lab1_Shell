@@ -15,6 +15,7 @@
 #include <sys/wait.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -42,6 +43,23 @@ int (*builtin_func[]) (char **) = {
 int lsh_num_builtins() {
   return sizeof(builtin_str) / sizeof(char *);
 }
+
+/*
+  General global functions and variables declarations.
+ */
+typedef struct recentPaths{
+	int index;
+	char* data;
+	int counter;
+}recentPaths;
+
+struct recentPaths paths[5];   //5 recent paths
+struct recentPaths recentPath;  //First structure object
+
+int dim() {
+  return sizeof(recentPaths); 
+};
+
 
 /**
    @brief Main entry point.
@@ -172,7 +190,7 @@ char *lsh_read_line(void)
 char **lsh_split_line(char *line)
 {
   int bufsize = LSH_TOK_BUFSIZE, position = 0;
-  char **tokens = malloc(bufsize * sizeof(char*));
+  char **tokens = malloc(bufsize * sizeof(char*));  // malloc sert à demander de l espace mémoire au systeme d exploitation
   char *token, **tokens_backup;
 
   if (!tokens) {
@@ -209,12 +227,29 @@ char **lsh_split_line(char *line)
  */
 int open(char **args)
 {
+	int i = 0;
+	int a;
+	int testresult;
+	//recentPaths paths[] = malloc(sizeof(recentPaths));
   if (args[1] == NULL) {
     fprintf(stderr, "lsh: expected argument to \"cd\"\n");
   } else {
     if (chdir(args[1]) != 0) {
       perror("lsh");
-    }
-  }
+    } else{
+		/*for(a = 0; a <= dim(); a++){
+
+			if(strcmp(args[1], paths[a].data) != 0){
+				paths[a].counter += 1;
+			} 							  
+		}*/
+		recentPath.index = 1;
+		recentPath.counter =1;
+		recentPath.data= args[1];
+		paths[i] = recentPath;
+		printf("\nindex: [%d] ; First path in array: [%s] ; counter: [%d]\n", paths[i].index, paths[i].data, paths[i].counter);
+		//printf("\nNewpath variable: [%d] ", a);
+	}
+	}
   return 1;
 }
