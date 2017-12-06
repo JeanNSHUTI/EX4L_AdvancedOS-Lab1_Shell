@@ -47,18 +47,21 @@ int lsh_num_builtins() {
 /*
   General global functions and variables declarations.
  */
+#define DIM 4
+static char* pathcompare = NULL; //char pointer that saves previous path-> for debugging
+bool first_lauch_flag = true;
 typedef struct recentPaths{
 	int index;
 	char* data;
 	int counter;
 }recentPaths;
 
-struct recentPaths paths[5];   //5 recent paths
+struct recentPaths paths[DIM];   //5 recent paths, static array to assure array stays the same throughout execution
 struct recentPaths recentPath;  //First structure object
 
-int dim() {
-  return sizeof(recentPaths); 
-};
+/*int dim() {
+  return sizeof(paths) * sizeof(recentPaths); 
+};*/
 
 
 /**
@@ -228,26 +231,46 @@ char **lsh_split_line(char *line)
 int open(char **args)
 {
 	int i = 0;
-	int a;
+	int indexv = 0;
+	//int a = 0;
 	int testresult;
-	//recentPaths paths[] = malloc(sizeof(recentPaths));
+	//struct recentPaths *paths = (recentPaths*) malloc(4 * sizeof(struct recentPaths));
   if (args[1] == NULL) {
     fprintf(stderr, "lsh: expected argument to \"cd\"\n");
   } else {
     if (chdir(args[1]) != 0) {
       perror("lsh");
-    } else{
-		/*for(a = 0; a <= dim(); a++){
-
-			if(strcmp(args[1], paths[a].data) != 0){
-				paths[a].counter += 1;
-			} 							  
-		}*/
-		recentPath.index = 1;
-		recentPath.counter =1;
+    } else{	
+		recentPath.index = ++indexv;
+		recentPath.counter = 1;		
 		recentPath.data= args[1];
-		paths[i] = recentPath;
-		printf("\nindex: [%d] ; First path in array: [%s] ; counter: [%d]\n", paths[i].index, paths[i].data, paths[i].counter);
+		if(first_lauch_flag == true){
+			paths[i] = recentPath;
+			first_lauch_flag = false;
+		}
+		if (pathcompare != NULL){			
+			printf("\npaths not null\n");
+			if(strcmp(args[1], pathcompare) == 0){
+				printf("\nincrementing counter\n");
+				printf("\npaths[a]counter: [%d]\n", paths[i].counter);
+				paths[i].counter += 1;
+			} else{
+				recentPath.index = ++indexv;
+				recentPath.counter =1;
+				recentPath.data= args[1];
+				paths[++i] = recentPath;				
+			}					
+		}
+		printf("\npaths[a] null\n");
+		pathcompare = recentPath.data;
+		printf("\npathcompare: [%s]\n", pathcompare);
+		//for(a = 0; a <= sizeof(*paths); a++){
+
+		printf("\nindex: [%d] ; First path in array: [%s] ; counter: [%d]\n", paths[i].index, paths[i].data, paths[i].counter);			
+		//else{			
+			
+		//}
+		//}
 		//printf("\nNewpath variable: [%d] ", a);
 	}
 	}
