@@ -279,7 +279,6 @@ int open(char **args)
 		}
     pathcompare = args[1];
 		printf("\npathcompare: [%s]\n", pathcompare);
-		//printf("\nNewpath variable: [%d] ", a);
 	  }
 	}
   return 1;
