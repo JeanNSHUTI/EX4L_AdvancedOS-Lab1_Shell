@@ -18,12 +18,13 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
-//#include <openlib.h>
+//#include "openlib.h"
 
 /*
   Function Declarations for builtin shell commands:
  */
 int open(char **args);
+int openshow(char **args);
 char **lsh_split_line(char *line);
 char *lsh_read_line(void);
 int lsh_execute(char **args);
@@ -34,10 +35,12 @@ int lsh_launch(char **args);
   List of builtin commands, followed by their corresponding functions.
  */
 char *builtin_str[] = {
+  "openshow",
   "open"
 };
 
 int (*builtin_func[]) (char **) = {
+  &openshow,
   &open
 };
 
@@ -48,25 +51,25 @@ int lsh_num_builtins() {
 /*
   General global functions and variables declarations.
  */
-#define DIM 4
+#define DIM 5
+
 int indexv = 1;
 int indexa = 0;
-//static char* pathcompare = NULL; //char array pointer (needs to be simple array) that saves previous path-> for debugging
 char pathcompare[500] = "";
 bool first_lauch_flag = true;
 bool addnewpath = false;
+bool add_flag = false;
+
 struct recentPaths{
 	int index;
-	//char *data;
   char data[500];
 	int counter;
 };
 
-//struct recentPaths recentPath;  //First structure object
 struct recentPaths paths[DIM];   //5 recent paths, static array to assure array stays the same throughout execution
 
 int dim() {
-  return 4;
+  return DIM;
 };
 
 
@@ -150,7 +153,7 @@ int lsh_execute(char **args)
     // An empty command was entered.
     return 1;
   }
-
+  
   for (i = 0; i < lsh_num_builtins(); i++) {
     if (strcmp(args[0], builtin_str[i]) == 0) {
       return (*builtin_func[i])(args);
@@ -246,6 +249,7 @@ int open(char **args)
     if (chdir(args[1]) != 0) {
       perror("lsh");   //Error with chdir
     } else{		
+      
 		if(first_lauch_flag == true){ //chdir succeeded, save first path used with open, execute once!
 			printf("\nAdding first path\n");		  
       paths[indexa].index= indexv;
@@ -254,32 +258,58 @@ int open(char **args)
 			first_lauch_flag = false;
 		}
 		if (strcmp(pathcompare, "") != 0){			   //Don't execute if first launch
-			//printf("\ntest: [%s]", test);
-      //for(i = 0; i < DIM; i++){
-        //if(strcmp(args[1], test) == 0){
-        if(strcmp(args[1], pathcompare) == 0){   //test if current path is equal to previous path
+      for(i = 0; i < dim(); i++){
+        printf("\n%d\n", i);
+        if(strcmp(args[1], paths[i].data) == 0){
+        //if(strcmp(args[1], pathcompare) == 0){   //test if current path is equal to previous path
           printf("\nincrementing counter\n");
           printf("\npaths[a]counter: [%d]\n", paths[i].counter);
           paths[i].counter += 1;
-        } else{  
-           addnewpath = true;
+          add_flag = true;
+          //break; 
+          //continue;
         }
-        if(addnewpath == true){
-        indexa = indexa + 1;          //Add new path at end of array.Incrementing needs debugging !          
-        printf("\nAdding new path\n");
-        paths[indexa].index = ++indexv;
-        paths[indexa].counter = 1;
-        strcpy(paths[indexa].data, args[1]);          
+        if(i == 4){
+          printf("\ni = 4\n");
+          if(add_flag != true){
+            addnewpath = true;            
+            printf("\nactivated add\n");
+          }
         }
-      //}     
-		}
-		for(a = 0; a <= dim(); a++)
-    {
-		printf("\ni : [%d] ; index: [%d] ; First path in array: [%s] ; counter: [%d]\n", indexa, paths[a].index, paths[a].data, paths[a].counter);			
+      }
+      printf("%s", addnewpath ? "true":"false");
+      if(addnewpath == true){
+      indexa = indexa + 1;          //Add new path at end of array.Incrementing needs debugging !          
+      printf("\nAdding new path\n");
+      paths[indexa].index = ++indexv;
+      paths[indexa].counter = 1;
+      strcpy(paths[indexa].data, args[1]);          
+      }
 		}
     strcpy(pathcompare, args[1]);
 		printf("\npathcompare: [%s]\n", pathcompare);
 	  }
 	}
+  add_flag = false;
+  addnewpath = false;
+  return 1;
+}
+
+/**
+   @brief Bultin command: change directory.
+   @param args List of args.  args[0] is "cd".  args[1] is the directory.
+   @return Always returns 1, to continue executing.
+ */
+int openshow(char **args)
+{
+  int a = 0;
+  if (args[1] != NULL) {
+    fprintf(stderr, "lsh: expected no argument\n");
+  } else {
+      for(a = 0; a < dim(); a++)
+      {
+		    printf("\ni : [%d] ; index: [%d] ; First path in array: [%s] ; counter: [%d]\n", indexa, paths[a].index, paths[a].data, paths[a].counter);			
+		  }
+   }
   return 1;
 }
