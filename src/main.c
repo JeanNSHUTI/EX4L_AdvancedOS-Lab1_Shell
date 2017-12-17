@@ -49,16 +49,20 @@ int lsh_num_builtins() {
   General global functions and variables declarations.
  */
 #define DIM 4
-static char* pathcompare = NULL; //char array pointer (needs to be simple array) that saves previous path-> for debugging
+int indexv = 1;
+int indexa = 0;
+//static char* pathcompare = NULL; //char array pointer (needs to be simple array) that saves previous path-> for debugging
+char pathcompare[500] = "";
 bool first_lauch_flag = true;
 bool addnewpath = false;
-typedef struct recentPaths{
+struct recentPaths{
 	int index;
-	char *data;
+	//char *data;
+  char data[500];
 	int counter;
-}recentPaths;
+};
 
-struct recentPaths recentPath;  //First structure object
+//struct recentPaths recentPath;  //First structure object
 struct recentPaths paths[DIM];   //5 recent paths, static array to assure array stays the same throughout execution
 
 int dim() {
@@ -233,8 +237,6 @@ char **lsh_split_line(char *line)
 int open(char **args)
 {
 	int i = 0;
-	int indexv = 1;
-  int indexa = 0;
 	char* test = "/home";
 	int a = 0;
 	//struct recentPaths *paths = (recentPaths*) malloc(4 * sizeof(struct recentPaths));
@@ -245,18 +247,17 @@ int open(char **args)
       perror("lsh");   //Error with chdir
     } else{		
 		if(first_lauch_flag == true){ //chdir succeeded, save first path used with open, execute once!
-		  recentPath.index = indexv;
-		  recentPath.counter = indexv;	      
-			printf("\nAdding first path\n");
-			recentPath.data = args[1];
-			paths[indexa] = recentPath;
+			printf("\nAdding first path\n");		  
+      paths[indexa].index= indexv;
+      paths[indexa].counter = 1;
+      strcpy(paths[indexa].data, args[1]);
 			first_lauch_flag = false;
 		}
-		if (pathcompare != NULL){			   //Don't execute if first launch
+		if (strcmp(pathcompare, "") != 0){			   //Don't execute if first launch
 			//printf("\ntest: [%s]", test);
       //for(i = 0; i < DIM; i++){
-        if(strcmp(args[1], test) == 0){
-        //if(strcmp(args[1], pathcompare) == 0){   //test if current path is equal to previous path
+        //if(strcmp(args[1], test) == 0){
+        if(strcmp(args[1], pathcompare) == 0){   //test if current path is equal to previous path
           printf("\nincrementing counter\n");
           printf("\npaths[a]counter: [%d]\n", paths[i].counter);
           paths[i].counter += 1;
@@ -264,12 +265,11 @@ int open(char **args)
            addnewpath = true;
         }
         if(addnewpath == true){
+        indexa = indexa + 1;          //Add new path at end of array.Incrementing needs debugging !          
         printf("\nAdding new path\n");
-        recentPath.index = recentPath.index + 1;
-        recentPath.counter = 1;
-        recentPath.data = args[1];
-        indexa = indexa + 1;          //Add new path at end of array.Incrementing needs debugging !
-        paths[indexa] =recentPath; 
+        paths[indexa].index = ++indexv;
+        paths[indexa].counter = 1;
+        strcpy(paths[indexa].data, args[1]);          
         }
       //}     
 		}
@@ -277,7 +277,7 @@ int open(char **args)
     {
 		printf("\ni : [%d] ; index: [%d] ; First path in array: [%s] ; counter: [%d]\n", indexa, paths[a].index, paths[a].data, paths[a].counter);			
 		}
-    pathcompare = args[1];
+    strcpy(pathcompare, args[1]);
 		printf("\npathcompare: [%s]\n", pathcompare);
 	  }
 	}
