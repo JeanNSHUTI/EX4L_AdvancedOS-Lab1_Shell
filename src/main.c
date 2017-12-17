@@ -279,11 +279,14 @@ int open(char **args)
       }
       printf("%s", addnewpath ? "true":"false");
       if(addnewpath == true){
-      indexa = indexa + 1;          //Add new path at end of array.Incrementing needs debugging !          
-      printf("\nAdding new path\n");
-      paths[indexa].index = ++indexv;
-      paths[indexa].counter = 1;
-      strcpy(paths[indexa].data, args[1]);          
+        //if array is not full
+        if(i != 4){  
+          indexa = indexa + 1;          //Add new path at end of array.          
+          printf("\nAdding new path\n");
+          paths[indexa].index = ++indexv;
+          paths[indexa].counter = 1;
+          strcpy(paths[indexa].data, args[1]); 
+        } //else replace path smallest counter           
       }
 		}
     strcpy(pathcompare, args[1]);
