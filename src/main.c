@@ -25,6 +25,8 @@
  */
 int open(char **args);
 int openshow(char **args);
+//int getmaxindex(void);
+int getminindex(void);
 char **lsh_split_line(char *line);
 char *lsh_read_line(void);
 int lsh_execute(char **args);
@@ -52,6 +54,7 @@ int lsh_num_builtins() {
   General global functions and variables declarations.
  */
 #define DIM 5
+#define LIMIT 4
 
 int indexv = 1;
 int indexa = 0;
@@ -242,6 +245,7 @@ int open(char **args)
 	int i = 0;
 	char* test = "-s";
 	int a = 0;
+  int min_index;
 	//struct recentPaths *paths = (recentPaths*) malloc(4 * sizeof(struct recentPaths));
   
   if (args[1] == NULL) {
@@ -271,7 +275,7 @@ int open(char **args)
           //break; 
           //continue;
           }    
-        if(i == 4){	
+        if(i == LIMIT){	
           printf("\ni = 4\n");
           if(add_flag != true){
             addnewpath = true;            
@@ -280,15 +284,21 @@ int open(char **args)
         }
        }
       printf("%s", addnewpath ? "true":"false");
-      if(addnewpath == true){
-        indexa = indexa + 1;          //Add new path at end of array.         
+      if(addnewpath == true){        
         //if array is not full
-        if(indexa <= 4){           
+        if(indexa <= LIMIT){    
+          indexa = indexa + 1;          //Add new path at end of array. 
           printf("\nAdding new path\n");
           paths[indexa].index = ++indexv;
           paths[indexa].counter = 1;
           strcpy(paths[indexa].data, args[1]); 
-        } //else replace path with smallest counter           
+        } else {
+          min_index = getminindex();
+          printf("\nminimum counter in array index: [%d]\n", min_index); 
+          min_index = min_index - 1; //Get realindex of array,then relplace path and reinitialise counter
+          paths[min_index].counter = 1;
+          strcpy(paths[min_index].data, args[1]);
+        }          
       }
 		}
     strcpy(pathcompare, args[1]);
@@ -317,4 +327,19 @@ int openshow(char **args)
 		  }
    }
   return 1;
+}
+
+int getminindex(void)
+{
+  int counter;
+  int result_index = 0;
+  int minvalue = paths[0].counter;
+  
+  for(counter = 0; counter < dim(); counter++){
+    if(paths[counter].counter < minvalue){
+      minvalue = paths[counter].counter;
+      result_index = paths[counter].index;   
+    }   
+  }
+  return result_index;
 }
