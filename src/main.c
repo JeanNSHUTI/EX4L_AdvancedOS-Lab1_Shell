@@ -371,10 +371,12 @@ int openlast(char **args)
   int minvalue = paths[0].counter;
   
   for(counter = 0; counter < dim(); counter++){
-    if(paths[counter].counter <= minvalue){    //gets most recent 
+    if(paths[counter].counter != 0){
+      if(paths[counter].counter <= minvalue){    //gets most recent 
       minvalue = paths[counter].counter;
       result_index = paths[counter].index;   
-    }   
+      } 
+    }  
   }
   result_index = result_index- 1; //Get real index in array
   if (args[1] == NULL) {
