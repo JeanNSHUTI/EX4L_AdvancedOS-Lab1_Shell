@@ -35,12 +35,12 @@ int lsh_launch(char **args);
   List of builtin commands, followed by their corresponding functions.
  */
 char *builtin_str[] = {
-  "openshow",
+  //"openshow",   //openshow can only be called via open -s
   "open"
 };
 
 int (*builtin_func[]) (char **) = {
-  &openshow,
+  //&openshow,
   &open
 };
 
@@ -240,16 +240,17 @@ char **lsh_split_line(char *line)
 int open(char **args)
 {
 	int i = 0;
-	char* test = "/home";
+	char* test = "-s";
 	int a = 0;
 	//struct recentPaths *paths = (recentPaths*) malloc(4 * sizeof(struct recentPaths));
+  
   if (args[1] == NULL) {
     fprintf(stderr, "lsh: expected argument to \"cd\"\n");
-  } else {
-    if (chdir(args[1]) != 0) {
+  } else if (strcmp(args[1], test) == 0) {            //call openshow instead
+    openshow(args);
+  } else if (chdir(args[1]) != 0) {
       perror("lsh");   //Error with chdir
-    } else{		
-      
+    } else{	   
 		if(first_lauch_flag == true){ //chdir succeeded, save first path used with open, execute once!
 			printf("\nAdding first path\n");		  
       paths[indexa].index= indexv;
@@ -257,8 +258,9 @@ int open(char **args)
       strcpy(paths[indexa].data, args[1]);
 			first_lauch_flag = false;
 		}
-		if (strcmp(pathcompare, "") != 0){			   //Don't execute if first launch
-      for(i = 0; i < dim(); i++){
+		if (strcmp(pathcompare, "") != 0){
+      //Don't execute if first launch      
+      for(i = 0; i < dim(); i++){		  
         printf("\n%d\n", i);
         if(strcmp(args[1], paths[i].data) == 0){
         //if(strcmp(args[1], pathcompare) == 0){   //test if current path is equal to previous path
@@ -268,31 +270,31 @@ int open(char **args)
           add_flag = true;
           //break; 
           //continue;
-        }
-        if(i == 4){
+          }    
+        if(i == 4){	
           printf("\ni = 4\n");
           if(add_flag != true){
             addnewpath = true;            
             printf("\nactivated add\n");
           }
         }
-      }
+       }
       printf("%s", addnewpath ? "true":"false");
       if(addnewpath == true){
+        indexa = indexa + 1;          //Add new path at end of array.         
         //if array is not full
-        if(i != 4){  
-          indexa = indexa + 1;          //Add new path at end of array.          
+        if(indexa <= 4){           
           printf("\nAdding new path\n");
           paths[indexa].index = ++indexv;
           paths[indexa].counter = 1;
           strcpy(paths[indexa].data, args[1]); 
-        } //else replace path smallest counter           
+        } //else replace path with smallest counter           
       }
 		}
     strcpy(pathcompare, args[1]);
 		printf("\npathcompare: [%s]\n", pathcompare);
 	  }
-	}
+	//}
   add_flag = false;
   addnewpath = false;
   return 1;
@@ -306,12 +308,12 @@ int open(char **args)
 int openshow(char **args)
 {
   int a = 0;
-  if (args[1] != NULL) {
+  if (args[1] == NULL) {
     fprintf(stderr, "lsh: expected no argument\n");
   } else {
       for(a = 0; a < dim(); a++)
       {
-		    printf("\ni : [%d] ; index: [%d] ; First path in array: [%s] ; counter: [%d]\n", indexa, paths[a].index, paths[a].data, paths[a].counter);			
+		    printf("\ni : [%d] ; index: [%d] ; Path in array: [%s] ; counter: [%d]\n", indexa, paths[a].index, paths[a].data, paths[a].counter);			
 		  }
    }
   return 1;
