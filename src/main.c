@@ -69,6 +69,7 @@ char pathcompare[500] = "";
 bool first_lauch_flag = true;
 bool addnewpath = false;
 bool add_flag = false;
+bool help_flag = true;
 
 struct recentPaths{
 	int index;
@@ -254,7 +255,7 @@ int open(char **args)
 	int i = 0;
 	char* list = "-s";
   char* max = "-m";
-  char* previous = "-p";
+  char* least = "-p";
   char* manual = "-man";
 	int a = 0;
   int min_index;
@@ -268,8 +269,9 @@ int open(char **args)
   } else if(strcmp(args[1], max) == 0){
     openmax(args);    //call openmax instead
   } else if(strcmp(args[1], manual) == 0){
+    help_flag = false;
     openman(args);    //call manual instead
-  } else if(strcmp(args[1], previous) == 0){
+  } else if(strcmp(args[1], least) == 0){
     openlast(args);    //call openlast instead
   } else if (chdir(args[1]) != 0) {
       perror("lsh");   //Error with chdir
@@ -391,11 +393,28 @@ int openlast(char **args)
 
 int openman(char **args)
 {
-  printf("GCCKN SHell based on Stephen Brennan's LSH\n");
-  printf("This is a protoype shell the uses mainly the command open and its sub-commands/extensions.\n");
-  printf("The following commands are built in:\n");
-  
-  //TO DO
+  if(help_flag){
+    printf("\n*******************************************\n");
+    printf("\nGCCKN SHell based on Stephen Brennan's LSH\n");
+    printf("\n___________________________________________\n");
+    printf("\nProtoype shell used to simulate the command open and its extensions.\n");
+    printf("The following commands are built in:\n");
+    printf("\n\t1. help\n");
+    printf("\n\t2. open (url)\n");
+    printf("\nThe following are Open's extensions:\n");
+    printf("\n\t1. open -s\n");
+    printf("\n\t2. open -m\n");
+    printf("\n\t3. open -p\n");
+    printf("\nType 'open -man' for details on extensions.\n\n");
+  } else{
+    printf("\nOpen allows you to navigate any repository in your workspace all while\n");
+    printf("keeping track of your five most favourite and recent directories. Use open's \n");
+    printf("extensions to speed up navigation:\n");
+    printf("\n\t1. -s  *Lists all paths currently saved in the open array\n");
+    printf("\n\t2. -m  *Changes directory to the most used directory\n");
+    printf("\n\t3. -p  *Changes directory to the least used and/or recent directory\n\n");
+    help_flag = true;
+  }
   return 1;
 }
 
