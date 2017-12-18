@@ -26,8 +26,8 @@
 int open(char **args);
 int openshow(char **args);
 int openmax(char **args);
-int getmaxindex(void);
-int getminindex(void);
+int openlast(char **args);
+int openman(char **args);
 char **lsh_split_line(char *line);
 char *lsh_read_line(void);
 int lsh_execute(char **args);
@@ -40,12 +40,16 @@ int lsh_launch(char **args);
 char *builtin_str[] = {
   //"openshow",   //openshow and open max can only be called via open -s or open -m
   //"openmax",
+  //"openlast",
+  "help",
   "open"
 };
 
 int (*builtin_func[]) (char **) = {
   //&openshow,
   //&openmax,
+  //&openlast,
+  &openman,
   &open
 };
 
@@ -54,7 +58,7 @@ int lsh_num_builtins() {
 }
 
 /*
-  General global functions and variables declarations.
+  General functions and global variables declarations.
  */
 #define DIM 5
 #define LIMIT 4
@@ -71,12 +75,14 @@ struct recentPaths{
   char data[500];
 	int counter;
 };
-
 struct recentPaths paths[DIM];   //5 recent paths, static array to assure array stays the same throughout execution
 
 int dim() {
   return DIM;
 };
+
+int getmaxindex(void);
+int getminindex(void);
 
 
 /**
@@ -199,7 +205,7 @@ char *lsh_read_line(void)
 }
 
 #define LSH_TOK_BUFSIZE 64
-#define LSH_TOK_DELIM " \t\r\n\a"
+#define LSH_TOK_DELIM " \t\r\n\a'"
 /**
    @brief Split a line into tokens (very naively).
    @param line The line.
@@ -246,18 +252,25 @@ char **lsh_split_line(char *line)
 int open(char **args)
 {
 	int i = 0;
-	char* test = "-s";
-  char* test2 = "-m";
+	char* list = "-s";
+  char* max = "-m";
+  char* previous = "-p";
+  char* manual = "-man";
 	int a = 0;
   int min_index;
+  int previouspath_index;
 	//struct recentPaths *paths = (recentPaths*) malloc(4 * sizeof(struct recentPaths));
   
   if (args[1] == NULL) {
     fprintf(stderr, "lsh: expected argument to \"cd\"\n");
-  } else if (strcmp(args[1], test) == 0) {            
+  } else if (strcmp(args[1], list ) == 0) {            
     openshow(args);   //call openshow instead
-  } else if(strcmp(args[1], test2) == 0){
+  } else if(strcmp(args[1], max) == 0){
     openmax(args);    //call openmax instead
+  } else if(strcmp(args[1], manual) == 0){
+    openman(args);    //call manual instead
+  } else if(strcmp(args[1], previous) == 0){
+    openlast(args);    //call openlast instead
   } else if (chdir(args[1]) != 0) {
       perror("lsh");   //Error with chdir
     } else{	   
@@ -289,7 +302,7 @@ int open(char **args)
           }
         }
        }
-      printf("%s", addnewpath ? "true":"false");
+      printf("\n%s\n", addnewpath ? "true":"false");
       if(addnewpath == true){        
         //if array is not full
         if(indexa <= LIMIT){    
@@ -351,6 +364,39 @@ int openmax(char **args)
   
 }
 
+int openlast(char **args)
+{
+  int counter;
+  int result_index = 0;
+  int minvalue = paths[0].counter;
+  
+  for(counter = 0; counter < dim(); counter++){
+    if(paths[counter].counter <= minvalue){    //gets most recent 
+      minvalue = paths[counter].counter;
+      result_index = paths[counter].index;   
+    }   
+  }
+  result_index = result_index- 1; //Get real index in array
+  if (args[1] == NULL) {
+    fprintf(stderr, "lsh: expected argument to \"cd\"\n");
+  } else {
+    if (chdir(paths[result_index].data) != 0) {
+      perror("lsh");
+    }
+  }
+  return 1;
+}
+
+int openman(char **args)
+{
+  printf("GCCKN SHell based on Stephen Brennan's LSH\n");
+  printf("This is a protoype shell the uses mainly the command open and its sub-commands/extensions.\n");
+  printf("The following commands are built in:\n");
+  
+  //TO DO
+  return 1;
+}
+
 int getminindex(void)
 {
   int counter;
@@ -358,7 +404,7 @@ int getminindex(void)
   int minvalue = paths[0].counter;
   
   for(counter = 0; counter < dim(); counter++){
-    if(paths[counter].counter < minvalue){
+    if(paths[counter].counter < minvalue){   //gets oldest
       minvalue = paths[counter].counter;
       result_index = paths[counter].index;   
     }   
