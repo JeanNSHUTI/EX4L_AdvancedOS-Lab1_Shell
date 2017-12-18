@@ -25,7 +25,8 @@
  */
 int open(char **args);
 int openshow(char **args);
-//int getmaxindex(void);
+int openmax(char **args);
+int getmaxindex(void);
 int getminindex(void);
 char **lsh_split_line(char *line);
 char *lsh_read_line(void);
@@ -37,12 +38,14 @@ int lsh_launch(char **args);
   List of builtin commands, followed by their corresponding functions.
  */
 char *builtin_str[] = {
-  //"openshow",   //openshow can only be called via open -s
+  //"openshow",   //openshow and open max can only be called via open -s or open -m
+  //"openmax",
   "open"
 };
 
 int (*builtin_func[]) (char **) = {
   //&openshow,
+  //&openmax,
   &open
 };
 
@@ -244,14 +247,17 @@ int open(char **args)
 {
 	int i = 0;
 	char* test = "-s";
+  char* test2 = "-m";
 	int a = 0;
   int min_index;
 	//struct recentPaths *paths = (recentPaths*) malloc(4 * sizeof(struct recentPaths));
   
   if (args[1] == NULL) {
     fprintf(stderr, "lsh: expected argument to \"cd\"\n");
-  } else if (strcmp(args[1], test) == 0) {            //call openshow instead
-    openshow(args);
+  } else if (strcmp(args[1], test) == 0) {            
+    openshow(args);   //call openshow instead
+  } else if(strcmp(args[1], test2) == 0){
+    openmax(args);    //call openmax instead
   } else if (chdir(args[1]) != 0) {
       perror("lsh");   //Error with chdir
     } else{	   
@@ -329,6 +335,22 @@ int openshow(char **args)
   return 1;
 }
 
+int openmax(char **args)
+{
+  int max_index;
+  max_index = getmaxindex();
+  max_index = max_index - 1; //Get real index in array
+  if (args[1] == NULL) {
+    fprintf(stderr, "lsh: expected argument to \"cd\"\n");
+  } else {
+    if (chdir(paths[max_index].data) != 0) {
+      perror("lsh");
+    }
+  }
+  return 1;
+  
+}
+
 int getminindex(void)
 {
   int counter;
@@ -342,4 +364,20 @@ int getminindex(void)
     }   
   }
   return result_index;
+}
+
+int getmaxindex(void)
+{
+  int counter;
+  int result_index = 0;
+  int maxvalue = paths[0].counter;
+  
+  for(counter = 0; counter < dim(); counter++){
+    if(paths[counter].counter >= maxvalue){
+      maxvalue = paths[counter].counter;
+      result_index = paths[counter].index;   
+    }   
+  }
+  return result_index;  
+  
 }
