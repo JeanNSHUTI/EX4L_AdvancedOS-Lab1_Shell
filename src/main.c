@@ -114,7 +114,6 @@ int main(int argc, char **argv)
 	if(getcwd(cwd, sizeof(cwd)) != NULL)  //get current directory
 	{
 		printf("%-s ~ ",cwd);
-		//printf("%");
 	}
     line = lsh_read_line();
     args = lsh_split_line(line);
@@ -255,7 +254,7 @@ char **lsh_split_line(char *line)
   tokens[position] = NULL;
   return tokens;
 }
-
+#define OPTIONS 4
 /**
    @brief Bultin command: change directory.
    @param args List of args.  args[0] is "cd".  args[1] is the directory.
@@ -264,24 +263,22 @@ char **lsh_split_line(char *line)
 int op(char **args)
 {
 	int i = 0;
-	char* list = "-s";
-  char* max = "-m";
-  char* least = "-p";
-  char* manual = "-man";
+  char *options[] = {"-s", "-m", "-p", "-man"}; 
 	int a = 0;
   int min_index;
   int previouspath_index;
-	//struct recentPaths *paths = (recentPaths*) malloc(4 * sizeof(struct recentPaths));
-  if (args[1] == NULL) {
+
+  if(args[2] == NULL){
+      if (args[1] == NULL) {
     fprintf(stderr, "lsh: expected argument to \"cd\"\n");
-  } else if (strcmp(args[1], list ) == 0) {            
+  } else if (strcmp(args[1], options[0] ) == 0) {            
     opshow(args);   //call openshow instead
-  } else if(strcmp(args[1], max) == 0){
+  } else if(strcmp(args[1], options[1]) == 0){
     opmax(args);    //call openmax instead
-  } else if(strcmp(args[1], manual) == 0){
+  } else if(strcmp(args[1], options[3]) == 0){
     help_flag = false;
     opman(args);    //call manual instead
-  } else if(strcmp(args[1], least) == 0){
+  } else if(strcmp(args[1], options[2]) == 0){
     oplast(args);    //call openlast instead
   } else if (chdir(args[1]) != 0) {
       perror("lsh");   //Error with chdir
@@ -333,8 +330,8 @@ int op(char **args)
       }
 		}
     strcpy(pathcompare, args[1]);
-		printf("\npathcompare: [%s]\n", pathcompare);
 	  }
+  } else{printf("\nEror: Expected only 1 argument\n");}
 	//}
   add_flag = false;
   addnewpath = false;
@@ -410,9 +407,8 @@ int opman(char **args)
     printf("\nProtoype shell used to simulate the command open and its extensions.\n");
     printf("The following commands are built in:\n");
     printf("\n\t1. help\n");
-    printf("\n\t2. op (url)\n");
-    printf("\n\t3. help\n");
-    printf("\n\t2. op (url)\n");
+    printf("\n\t2. op (/url)\n");
+    printf("\n\t3. cr (/url/name or name)\n");
     printf("\nThe following are Open's extensions:\n");
     printf("\n\t1. op -s\n");
     printf("\n\t2. op -m\n");
@@ -430,16 +426,19 @@ int opman(char **args)
   return 1;
 }
 
+#define size 3
 int cr(char **args)
 {
   int file_d;
   char cwd[1024];
-  char *create_inmax = "-m";
-  char *create_inleast = "-p";
+  char **options = malloc(size * sizeof(char*));
+  options[0] = "-m";
+  options[1] = "-p";
+  options[2] = "-man";
   
   if (args[1] == NULL) {
-    printf("\nArgument expected: '/path/ + nameOfFile' just 'nameOfFile' or option \n");
-  } else if(strcmp(args[1], create_inmax) == 0){
+    printf("Error: Argument expected: '/path/ + nameOfFile' ; just 'nameOfFile' or option \n");
+  } else if(strcmp(args[1], options[0]) == 0){
     if(op(args)){
       if((file_d = creat(args[2], MODE))){
         ftruncate(file_d, 1000);
@@ -448,7 +447,7 @@ int cr(char **args)
         write(file_d, "", 1);
       }else{ perror("Error:");} 
     }
-  } else if(strcmp(args[1], create_inleast) == 0){
+  } else if(strcmp(args[1], options[1]) == 0){
     if(op(args)){
       if((file_d = creat(args[2], MODE))){
       ftruncate(file_d, 1000);
