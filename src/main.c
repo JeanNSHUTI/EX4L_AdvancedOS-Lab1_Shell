@@ -431,15 +431,13 @@ int opman(char **args)
 int cr(char **args)
 {
   int file_d;
-  int maxi = getmaxindex();
-  int mini = getminindex();
   char cwd[1024];
   char *create_inmax = "-m";
   char *create_inleast = "-p";
   
   if (args[1] == NULL) {
     printf("\nArgument expected: '/path/ + nameOfFile' just 'nameOfFile' or option \n");
-  } else if(strcmp(args[1], create_inmax)){
+  } else if(strcmp(args[1], create_inmax) == 0){
     if(op(args)){
       if((file_d = creat(args[2], MODE))){
         ftruncate(file_d, 1000);
@@ -448,7 +446,7 @@ int cr(char **args)
         write(file_d, "", 1);
       }else{ perror("Error:");} 
     }
-  } else if(strcmp(args[1], create_inleast)){
+  } else if(strcmp(args[1], create_inleast) == 0){
     if(op(args)){
       if((file_d = creat(args[2], MODE))){
       ftruncate(file_d, 1000);
@@ -457,15 +455,13 @@ int cr(char **args)
       write(file_d, "", 1);
   } else { perror("Error:");}
     } 
-  } else {
-    if((file_d = creat(args[1], MODE)) > 0)
-    {
-      ftruncate(file_d, 1000);
-      printf("\ncreating here.. [%s]\n", args[1]);
-      //lseek(file_d, 999, SEEK_SET);
-      write(file_d, "", 1);
-    } else {perror("Error:");}
-  }
+  } else if((file_d = creat(args[1], MODE)) > 0){
+    ftruncate(file_d, 1000);
+    printf("\ncreating here.. [%s]\n", args[1]);
+    //lseek(file_d, 999, SEEK_SET);
+    write(file_d, "", 1);
+  } else {perror("Error:");}
+
  return 1; 
 }
 
