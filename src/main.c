@@ -30,7 +30,8 @@ int op(char **args);
 int opshow(char **args);
 int opmax(char **args);
 int oplast(char **args);
-int opman(char **args);
+int help(char **args);
+int man(char **args);
 int cr(char **args);
 char **lsh_split_line(char *line);
 char *lsh_read_line(void);
@@ -42,20 +43,14 @@ int lsh_launch(char **args);
   List of builtin commands, followed by their corresponding functions.
  */
 char *builtin_str[] = {
-  //"openshow",   //openshow and open max can only be called via open -s or open -m
-  //"openmax",
-  //"openlast",
   "cr",
   "help",
   "op"
 };
 
 int (*builtin_func[]) (char **) = {
-  //&openshow,
-  //&openmax,
-  //&openlast,
   &cr,
-  &opman,
+  &help,
   &op
 };
 
@@ -76,7 +71,6 @@ char pathcompare[500] = "";
 bool first_lauch_flag = true;
 bool addnewpath = false;
 bool add_flag = false;
-bool help_flag = true;
 
 struct recentPaths{
 	int index;
@@ -276,8 +270,7 @@ int op(char **args)
   } else if(strcmp(args[1], options[1]) == 0){
     opmax(args);    //call openmax instead
   } else if(strcmp(args[1], options[3]) == 0){
-    help_flag = false;
-    opman(args);    //call manual instead
+    man(args);    //call manual instead
   } else if(strcmp(args[1], options[2]) == 0){
     oplast(args);    //call openlast instead
   } else if (chdir(args[1]) != 0) {
@@ -398,30 +391,43 @@ int oplast(char **args)
   return 1;
 }
 
-int opman(char **args)
+int help(char **args)
 {
-  if(help_flag){
-    printf("\n*******************************************\n");
-    printf("\nGCCKN SHell based on Stephen Brennan's LSH\n");
-    printf("\n___________________________________________\n");
-    printf("\nProtoype shell used to simulate the command open and its extensions.\n");
-    printf("The following commands are built in:\n");
-    printf("\n\t1. help\n");
-    printf("\n\t2. op (/url)\n");
-    printf("\n\t3. cr (/url/name or name)\n");
-    printf("\nThe following are Open's extensions:\n");
-    printf("\n\t1. op -s\n");
-    printf("\n\t2. op -m\n");
-    printf("\n\t3. op -p\n");
-    printf("\nType 'op -man' for details on extensions.\n\n");
-  } else{
-    printf("\nOp allows you to navigate any repository in your workspace all while\n");
-    printf("keeping track of your five most favourite and recent directories. Use open's \n");
-    printf("extensions to speed up navigation:\n");
+  printf("\n*******************************************\n");
+  printf("\nGCCKN SHell based on Stephen Brennan's LSH\n");
+  printf("\n___________________________________________\n");
+  printf("\nProtoype shell used to simulate the command open and its extensions.\n");
+  printf("The following commands are built in:\n");
+  printf("\n\t1. help\n");
+  printf("\n\t2. op (/url)\n");
+  printf("\n\t3. cr (/url/name or name)\n");
+  printf("\nThe following are Open's extensions:\n");
+  printf("\n\t1. op -s\n");
+  printf("\n\t2. op -m\n");
+  printf("\n\t3. op -p\n");
+  printf("\nType 'op -man' for details on extensions.\n\n");
+}
+
+/*
+Manual -option. Allows to view individual help
+of all commands. Additional manuals can be added here.
+*/
+int man(char **args)
+{
+  if(strcmp(args[0], "op") == 0){
+    printf("\nop allows you to navigate any repository in your workspace all while\n");
+    printf("keeping track of your five most favourite and recent directories.\n");
+    printf("Use open's extensions to speed up navigation:\n");
     printf("\n\t1. -s  *Lists all paths currently saved in the open array\n");
     printf("\n\t2. -m  *Changes directory to the most used directory\n");
     printf("\n\t3. -p  *Changes directory to the least used and/or recent directory\n\n");
-    help_flag = true;
+
+  } else if (strcmp(args[0], "cr") == 0){
+    printf("\ncr allows you to create a file in your current directory, any other \n");
+    printf("directory (by provding absolute address + name), in the directory \n");
+    printf("most used (c.f. 'op -man') or least used directory (c.f. 'op').\n");
+    printf("\n\t1. -m  NameofFile   *Creates NameofFile in most used directory\n");
+    printf("\n\t2. -p  NameofFile   *Creates NameofFile in directory the least used\n\n");
   }
   return 1;
 }
@@ -447,7 +453,9 @@ int cr(char **args)
         write(file_d, "", 1);
       }else{ perror("Error:");} 
     }
-  } else if(strcmp(args[1], options[1]) == 0){
+  } else if(strcmp(args[1], options[2]) == 0){
+    man(args);//callman instead
+  }else if(strcmp(args[1], options[1]) == 0){
     if(op(args)){
       if((file_d = creat(args[2], MODE))){
       ftruncate(file_d, 1000);
