@@ -307,7 +307,7 @@ int open(char **args)
       printf("\n%s\n", addnewpath ? "true":"false");
       if(addnewpath == true){        
         //if array is not full
-        if(indexa <= LIMIT){    
+        if(indexa < LIMIT){    
           indexa = indexa + 1;          //Add new path at end of array. 
           printf("\nAdding new path\n");
           paths[indexa].index = ++indexv;
@@ -360,7 +360,7 @@ int openmax(char **args)
   } else {
     if (chdir(paths[max_index].data) != 0) {
       perror("lsh");
-    }
+    } else{paths[max_index].counter += 1;}
   }
   return 1;
   
@@ -386,7 +386,7 @@ int openlast(char **args)
   } else {
     if (chdir(paths[result_index].data) != 0) {
       perror("lsh");
-    }
+    } else{paths[result_index].counter += 1;}
   }
   return 1;
 }
