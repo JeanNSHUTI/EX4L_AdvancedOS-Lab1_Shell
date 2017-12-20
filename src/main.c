@@ -410,14 +410,16 @@ int opman(char **args)
     printf("\nProtoype shell used to simulate the command open and its extensions.\n");
     printf("The following commands are built in:\n");
     printf("\n\t1. help\n");
-    printf("\n\t2. open (url)\n");
+    printf("\n\t2. op (url)\n");
+    printf("\n\t3. help\n");
+    printf("\n\t2. op (url)\n");
     printf("\nThe following are Open's extensions:\n");
-    printf("\n\t1. open -s\n");
-    printf("\n\t2. open -m\n");
-    printf("\n\t3. open -p\n");
-    printf("\nType 'open -man' for details on extensions.\n\n");
+    printf("\n\t1. op -s\n");
+    printf("\n\t2. op -m\n");
+    printf("\n\t3. op -p\n");
+    printf("\nType 'op -man' for details on extensions.\n\n");
   } else{
-    printf("\nOpen allows you to navigate any repository in your workspace all while\n");
+    printf("\nOp allows you to navigate any repository in your workspace all while\n");
     printf("keeping track of your five most favourite and recent directories. Use open's \n");
     printf("extensions to speed up navigation:\n");
     printf("\n\t1. -s  *Lists all paths currently saved in the open array\n");
