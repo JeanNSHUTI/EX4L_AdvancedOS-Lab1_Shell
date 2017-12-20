@@ -261,7 +261,6 @@ int open(char **args)
   int min_index;
   int previouspath_index;
 	//struct recentPaths *paths = (recentPaths*) malloc(4 * sizeof(struct recentPaths));
-  
   if (args[1] == NULL) {
     fprintf(stderr, "lsh: expected argument to \"cd\"\n");
   } else if (strcmp(args[1], list ) == 0) {            
