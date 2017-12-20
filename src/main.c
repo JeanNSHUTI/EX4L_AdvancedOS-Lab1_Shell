@@ -18,16 +18,20 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 //#include "openlib.h"
 
 /*
   Function Declarations for builtin shell commands:
  */
-int open(char **args);
-int openshow(char **args);
-int openmax(char **args);
-int openlast(char **args);
-int openman(char **args);
+int op(char **args);
+int opshow(char **args);
+int opmax(char **args);
+int oplast(char **args);
+int opman(char **args);
+int cr(char **args);
 char **lsh_split_line(char *line);
 char *lsh_read_line(void);
 int lsh_execute(char **args);
@@ -41,16 +45,18 @@ char *builtin_str[] = {
   //"openshow",   //openshow and open max can only be called via open -s or open -m
   //"openmax",
   //"openlast",
+  "cr",
   "help",
-  "open"
+  "op"
 };
 
 int (*builtin_func[]) (char **) = {
   //&openshow,
   //&openmax,
   //&openlast,
-  &openman,
-  &open
+  &cr,
+  &opman,
+  &op
 };
 
 int lsh_num_builtins() {
@@ -62,6 +68,7 @@ int lsh_num_builtins() {
  */
 #define DIM 5
 #define LIMIT 4
+#define MODE (S_IWUSR | S_IXUSR| S_IRUSR | S_IRGRP | S_IROTH)  //read and write permissions
 
 int indexv = 1;
 int indexa = 0;
@@ -94,7 +101,7 @@ int getminindex(void);
  */
 int main(int argc, char **argv)
 {
-	char cwd[1000];
+	char cwd[1024];
   // Load config files, if any.
 
   // Run command loop.
@@ -104,12 +111,11 @@ int main(int argc, char **argv)
 
   do {
 	//Command prompt
-	if(getcwd(cwd, sizeof(cwd)) != NULL)
+	if(getcwd(cwd, sizeof(cwd)) != NULL)  //get current directory
 	{
-		printf("%-s ~",cwd);
+		printf("%-s ~ ",cwd);
 		//printf("%");
 	}
-    printf(" ");
     line = lsh_read_line();
     args = lsh_split_line(line);
     status = lsh_execute(args);
@@ -166,6 +172,11 @@ int lsh_execute(char **args)
     // An empty command was entered.
     return 1;
   }
+  
+  /*if(argc == 3){
+    return(cr(args));
+  }*/
+  //printf("\n [%d]\n", argc);
   
   for (i = 0; i < lsh_num_builtins(); i++) {
     if (strcmp(args[0], builtin_str[i]) == 0) {
@@ -250,7 +261,7 @@ char **lsh_split_line(char *line)
    @param args List of args.  args[0] is "cd".  args[1] is the directory.
    @return Always returns 1, to continue executing.
  */
-int open(char **args)
+int op(char **args)
 {
 	int i = 0;
 	char* list = "-s";
@@ -264,14 +275,14 @@ int open(char **args)
   if (args[1] == NULL) {
     fprintf(stderr, "lsh: expected argument to \"cd\"\n");
   } else if (strcmp(args[1], list ) == 0) {            
-    openshow(args);   //call openshow instead
+    opshow(args);   //call openshow instead
   } else if(strcmp(args[1], max) == 0){
-    openmax(args);    //call openmax instead
+    opmax(args);    //call openmax instead
   } else if(strcmp(args[1], manual) == 0){
     help_flag = false;
-    openman(args);    //call manual instead
+    opman(args);    //call manual instead
   } else if(strcmp(args[1], least) == 0){
-    openlast(args);    //call openlast instead
+    oplast(args);    //call openlast instead
   } else if (chdir(args[1]) != 0) {
       perror("lsh");   //Error with chdir
     } else{	   
@@ -335,7 +346,7 @@ int open(char **args)
    @param args List of args.  args[0] is "cd".  args[1] is the directory.
    @return Always returns 1, to continue executing.
  */
-int openshow(char **args)
+int opshow(char **args)
 {
   int a = 0;
   if (args[1] == NULL) {
@@ -349,7 +360,7 @@ int openshow(char **args)
   return 1;
 }
 
-int openmax(char **args)
+int opmax(char **args)
 {
   int max_index;
   max_index = getmaxindex();
@@ -365,7 +376,7 @@ int openmax(char **args)
   
 }
 
-int openlast(char **args)
+int oplast(char **args)
 {
   int counter;
   int result_index = 0;
@@ -390,7 +401,7 @@ int openlast(char **args)
   return 1;
 }
 
-int openman(char **args)
+int opman(char **args)
 {
   if(help_flag){
     printf("\n*******************************************\n");
@@ -415,6 +426,47 @@ int openman(char **args)
     help_flag = true;
   }
   return 1;
+}
+
+int cr(char **args)
+{
+  int file_d;
+  int maxi = getmaxindex();
+  int mini = getminindex();
+  char cwd[1024];
+  char *create_inmax = "-m";
+  char *create_inleast = "-p";
+  
+  if (args[1] == NULL) {
+    printf("\nArgument expected: '/path/ + nameOfFile' just 'nameOfFile' or option \n");
+  } else if(strcmp(args[1], create_inmax)){
+    if(op(args)){
+      if((file_d = creat(args[2], MODE))){
+        ftruncate(file_d, 1000);
+        printf("\ncreating.. [%s]\n", args[2]);
+        //lseek(file_d, 999, SEEK_SET);
+        write(file_d, "", 1);
+      }else{ perror("Error:");} 
+    }
+  } else if(strcmp(args[1], create_inleast)){
+    if(op(args)){
+      if((file_d = creat(args[2], MODE))){
+      ftruncate(file_d, 1000);
+      printf("\ncreating.. [%s]\n", args[2]);
+      //lseek(file_d, 999, SEEK_SET);
+      write(file_d, "", 1);
+  } else { perror("Error:");}
+    } 
+  } else {
+    if((file_d = creat(args[1], MODE)) > 0)
+    {
+      ftruncate(file_d, 1000);
+      printf("\ncreating here.. [%s]\n", args[1]);
+      //lseek(file_d, 999, SEEK_SET);
+      write(file_d, "", 1);
+    } else {perror("Error:");}
+  }
+ return 1; 
 }
 
 int getminindex(void)

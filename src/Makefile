@@ -11,6 +11,6 @@ clean :
 		
 #Delete all other files except source files for 
 #clean reconstruction 
-mrproper : clean
-		rm -rf MiniShell
+#mrproper : clean
+		#rm -rf MiniShell
 	
