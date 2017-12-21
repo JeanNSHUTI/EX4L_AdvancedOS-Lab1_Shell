@@ -1,30 +1,29 @@
-//Header file for open command
-
-
+//Header file for op and cr command
 /*
-  General global functions and variables declarations.
+  General declarations.
  */
+#define OPTIONS 3
 #define DIM 5
+#define LIMIT 4
+#define MODE (S_IWUSR | S_IXUSR | S_IRUSR | S_IRGRP | S_IROTH)  //read and write permissions
 
-extern int indexv;
-extern int indexa;
-extern char pathcompare[500];
-extern bool first_lauch_flag;
-extern bool addnewpath;
-extern bool add_flag ;
-
-extern struct recentPaths{
-	int index;
-    char data[500];
-	int counter;
-}recentPaths;
-
-extern struct recentPaths paths[DIM];   //5 recent paths, static array to assure array stays the same throughout execution
+struct recentPaths{
+  int index;
+  char data[500];
+  int counter;
+};
 
 
 //Functions
-void printAllPaths(void);   //Print all paths currently saved in open array
 int dim(void);
+int op(char **args);
+int opshow(char **args);
+int opmax(char **args);
+int oplast(char **args);
+int man(char **args);
+int cr(char **args);
+int getmaxindex(void);
+int getminindex(void);
 //void addNewPath(char paths[]);        //Add a new path to open array
 //int replacePath(char *);        //replace least used path with new path to open array
 //int doesPathExist(char *);     //Check if pathalready exists in open array, return index if path exists, else return 0
