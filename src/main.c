@@ -63,7 +63,7 @@ int lsh_num_builtins() {
  */
 #define DIM 5
 #define LIMIT 4
-#define MODE (S_IWUSR | S_IXUSR| S_IRUSR | S_IRGRP | S_IROTH)  //read and write permissions
+#define MODE (S_IWUSR | S_IXUSR | S_IRUSR | S_IRGRP | S_IROTH)  //read and write permissions
 
 int indexv = 1;
 int indexa = 0;
@@ -73,9 +73,9 @@ bool addnewpath = false;
 bool add_flag = false;
 
 struct recentPaths{
-	int index;
+  int index;
   char data[500];
-	int counter;
+  int counter;
 };
 struct recentPaths paths[DIM];   //5 recent paths, static array to assure array stays the same throughout execution
 
@@ -96,13 +96,12 @@ int getminindex(void);
 int main(int argc, char **argv)
 {
 	char cwd[1024];
-  // Load config files, if any.
-
-  // Run command loop.
   char *line;
   char **args;
   int status;
+  // Load config files, if any.
 
+  // Run command loop.
   do {
 	//Command prompt
 	if(getcwd(cwd, sizeof(cwd)) != NULL)  //get current directory
