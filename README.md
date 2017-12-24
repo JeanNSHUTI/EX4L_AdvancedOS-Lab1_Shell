@@ -1,7 +1,7 @@
 # EX4L_AdvancedOS-Lab1_Shell
 Group project assignment aimed to experiment with Advanced Os techniques such as creating a Shell and executing user typed commands
 
-Protoype shell used to simulate the command op and its options, as wall as cr and its options closely linked to op.
+Protoype shell used to simulate the command op and its options, as well as cr and its options closely linked to op.
 
 The following commands are built in:
 
